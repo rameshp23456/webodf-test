@@ -8,7 +8,8 @@ odfcanvas,
 zoom = 1,
 dom,
 canvasListeners = [],
-view;
+view,
+file;
 
 
 
@@ -22,8 +23,8 @@ function init() {
 
 
 function getSelected(e){
-	initCanvas()
-	var file= e.files[0];
+	initCanvas();
+	 file= e.files[0];
 	var reader= new FileReader();
 	
 	reader.onloadend=function(e){
@@ -51,6 +52,7 @@ function initCanvas() {
         // the data from this canvas
         globalreadfunction = runtime.read;
         globalfilesizefunction = runtime.getFileSize;
+        globalloadxmlfunction=runtime.loadXML;
         runtime.read = function (path, offset, length, callback) {
             if (path !== overridePath) {
                 globalreadfunction.apply(runtime,
@@ -66,9 +68,50 @@ function initCanvas() {
                 callback(data.length);
             }
         };
+        runtime.loadXML = function(path,callback){
+        	if (path !== overridePath) {
+                globalloadxmlfunction.apply(runtime, [path, callback]);
+            } else {
+            	
+            	
+            	
+            	var reader= new FileReader();
+            	
+            	reader.onloadend=function(e){
+            		var str = e.target.result;
+            		
+            		try {
+                		
+                    	var xml=str2xml(str);
+                	
+                    callback(null,xml);
+                	}
+                	catch(e){
+                		console.eror(e.message);
+                	}
+            	}
+            	
+     
+            	reader.readAsText(file)
+            	
+            	
+            	
+            	
+            }
+        };
+        
         init();
         odfcanvas.addListener("statereadychange", signalCanvasChange);
     }
+}
+
+function ab2str(buf) {
+	  return String.fromCharCode.apply(null, new Uint32Array(buf));
+}
+function str2xml(txt){
+	var parser=new DOMParser();
+	 var xmlDoc=parser.parseFromString(txt,"application/xml");
+	 return xmlDoc;
 }
 
 function signalCanvasChange(){
