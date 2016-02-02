@@ -29,7 +29,7 @@ function getSelected(e){
 	
 	reader.onloadend=function(e){
 		data = e.target.result;
-		odfcanvas.load(overridePath);
+		odfcanvas.load(data);
 	}
 	
 	currentPath = file.name;
